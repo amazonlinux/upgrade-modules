@@ -1,0 +1,40 @@
+#!/bin/bash
+
+. /usr/share/preupgrade/common.sh
+
+#END GENERATED SECTION
+
+
+UNSIGNED_PYTHON_RPMS=0
+for dist_dir in $(find -P /usr/lib*/python*/dist-packages/* -maxdepth 0 -type d)
+do
+	RPMS=$(rpm -qf $dist_dir)
+	if [ $? -ne 0 ]; then
+		log_info "Python directory in dist-packages ${dist_dir} is not owned by an RPM package."
+		UNSIGNED_PYTHON_RPMS=$(($UNSIGNED_PYTHON_RPMS == 0 ? 1 : $UNSIGNED_PYTHON_RPMS))
+		continue
+	fi
+	while read -r individual_rpm; do
+		RPM_NAME=$(rpm -q --qf "%{NAME}" $individual_rpm)
+		is_dist_native "$RPM_NAME"
+		if [ $? -ne 0 ]; then
+			log_slight_risk "Python directory ${dist_dir} is owned by an RPM package that was not GPG signed by AL."
+			UNSIGNED_PYTHON_RPMS=2
+		fi
+	done <<< "$RPMS"
+done
+
+case "$UNSIGNED_PYTHON_RPMS" in
+	0)
+		exit_pass
+		;;
+	1)
+		exit_informational
+		;;
+	2)
+		exit_fail
+		;;
+	*)
+		exit_error
+		;;
+esac

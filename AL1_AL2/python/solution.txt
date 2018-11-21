@@ -1,0 +1,5 @@
+Directories showing up in Python's installation path, /usr/lib/python*/dist-packages, will not be owned by an RPM if they were installed using pip or other non-OS specific methods.
+
+Be aware that any RPM owned python packages which are not signed by Amazon Linux will need to be manually reinstalled on your new system.
+
+In addition, the python installation directory on Amazon Linux 2 has moved from /usr/lib/python*/dist-packages to the more traditional /usr/lib/python*/site-packages directory.

@@ -1,0 +1,26 @@
+#!/bin/bash
+
+. /usr/share/preupgrade/common.sh
+
+#END GENERATED SECTION
+
+found=
+if test -f /etc/my.cnf -o -f /usr/local/etc/my.cnf -o -f /etc/mysql/my.cnf; then
+	found=cnf
+fi
+if ps xa |grep -q mysql; then
+	found=proc
+fi
+
+if test -n "$found"; then
+	cat >"$SOLUTION_FILE" <<-EOF
+		Amazon Linux 2 moves mysql functionality to mariadb packages.
+		
+		That is probably close to right for you, but any major upgrade of
+		mysql needs verification.
+	EOF
+	log_medium_risk "Some part of mariadb might not be compatible with your use."
+	exit_fail
+else
+	exit_not_applicable
+fi

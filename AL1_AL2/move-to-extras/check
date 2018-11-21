@@ -1,0 +1,23 @@
+#!/bin/bash
+
+. /usr/share/preupgrade/common.sh
+
+#END GENERATED SECTION
+
+packages_similar=$(rpm -qa |egrep '\b(emacs[0-9]*|memcached|nginx|postgresql[0-9]*|python3|vim|nano|php[0-9]*|docker[0-9]*|tomcat)\b')
+
+if test -n "$packages_similar"; then
+	cat >"$SOLUTION_FILE" <<-EOF
+		Amazon Linux 2 provides some software in a more limited-support, but updated
+                more-frequently source of software, called Extras. Some of the software you
+		have installed here can be found in Amazon Linux Extras when you move to 2.
+
+		In particular, packages
+		$packages_similar
+
+		For info about extras see https://aws.amazon.com/amazon-linux-2/faqs/#Amazon_Linux_Extras
+	EOF
+	exit_informational "You have packages that are implemented in Extras in Amazon Linux 2"
+else
+	exit_not_applicable
+fi

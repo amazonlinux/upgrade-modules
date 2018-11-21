@@ -1,0 +1,22 @@
+#!/bin/bash
+
+. /usr/share/preupgrade/common.sh
+
+#END GENERATED SECTION
+
+unexpected_lines_grubmenu=$(sed -e 's/#.*//' -e 's/\t/ /' -e '/^ *$/d' -e '/^default=0$/d' -e '/^fallback=1$/d' -e '/^timeout=0$/d' -e '/^hiddenmenu$/d' -e '/^root (hd0,0)/d' -e '/^title Amazon Linux/d' -e '/^initrd .boot.initramfs-/d' -e '/^kernel .* root=LABEL=\/.*console=tty1.*console=ttyS0.*selinux=0/d' </boot/grub/menu.lst)
+
+if test -n "$unexpected_lines_grubmenu"; then
+	cat >"$SOLUTION_FILE" <<-EOF
+		You might need to take care with your grub menu.list to ensure that
+		switching to grub2 works for you.
+
+		In particular, check
+		$unexpected_lines_grubmenu
+	EOF
+	exit_informational
+else
+	log_info "Amazon Linux 2 uses grub2, which should pose no problem for you."
+	exit_pass
+fi
+
